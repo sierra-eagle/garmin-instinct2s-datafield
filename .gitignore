@@ -1,0 +1,15 @@
+# Garmin Connect IQ build output
+bin/
+
+# Compiled Connect IQ applications
+*.prg
+*.iq
+
+# Developer/signing keys
+*.key
+*.pem
+developer_key
+
+# Operating system files
+.DS_Store
+Thumbs.db
