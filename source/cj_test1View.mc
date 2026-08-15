@@ -1,0 +1,354 @@
+using Toybox.Activity;
+using Toybox.Graphics;
+using Toybox.System;
+using Toybox.WatchUi;
+
+class cj_test1View extends WatchUi.DataField {
+
+    var elapsedTime;
+    var distanceMiles;
+    var ascentFeet;
+    var descentFeet;
+    var altitudeFeet;
+
+    function initialize() {
+        DataField.initialize();
+
+        elapsedTime = 0;
+        distanceMiles = 0.0;
+        ascentFeet = 0;
+        descentFeet = 0;
+        altitudeFeet = 0;
+    }
+
+
+    function compute(info) {
+
+        // ---------------------------------
+        // ELAPSED ACTIVITY TIME
+        // Garmin provides this in milliseconds
+        // ---------------------------------
+        if (info.elapsedTime != null) {
+            elapsedTime = info.elapsedTime;
+        }
+
+        // ---------------------------------
+        // DISTANCE
+        // Garmin provides meters
+        // Convert to miles
+        // ---------------------------------
+        if (info.elapsedDistance != null) {
+            distanceMiles =
+                info.elapsedDistance / 1609.344;
+        }
+
+        // ---------------------------------
+        // TOTAL ASCENT
+        // Convert meters to feet
+        // ---------------------------------
+        if (info.totalAscent != null) {
+            ascentFeet =
+                (info.totalAscent * 3.28084).toNumber();
+        }
+
+        // ---------------------------------
+        // TOTAL DESCENT
+        // Convert meters to feet
+        // ---------------------------------
+        if (info.totalDescent != null) {
+            descentFeet =
+                (info.totalDescent * 3.28084).toNumber();
+        }
+
+        // ---------------------------------
+        // CURRENT ELEVATION
+        // Convert meters to feet
+        // ---------------------------------
+        if (info.altitude != null) {
+            altitudeFeet =
+                (info.altitude * 3.28084).toNumber();
+        }
+
+        return distanceMiles;
+    }
+
+
+    function onUpdate(dc) {
+
+        dc.setColor(
+            Graphics.COLOR_BLACK,
+            Graphics.COLOR_WHITE
+        );
+
+        dc.clear();
+
+
+        // =================================
+        // CURRENT CLOCK TIME
+        // =================================
+
+        var clock = System.getClockTime();
+
+        var hour = clock.hour;
+        var minute = clock.min;
+        var suffix = "AM";
+
+        if (hour >= 12) {
+            suffix = "PM";
+        }
+
+        if (hour == 0) {
+            hour = 12;
+        } else if (hour > 12) {
+            hour -= 12;
+        }
+
+        var clockString =
+            hour.format("%d") +
+            ":" +
+            minute.format("%02d");
+
+
+        // =================================
+        // ELAPSED ACTIVITY TIME
+        // =================================
+
+        var totalSeconds =
+            (elapsedTime / 1000).toNumber();
+
+        var elapsedHours =
+            (totalSeconds / 3600).toNumber();
+
+        var elapsedMinutes =
+            ((totalSeconds % 3600) / 60).toNumber();
+
+        var elapsedSeconds =
+            (totalSeconds % 60).toNumber();
+
+        var elapsedString;
+
+        if (elapsedHours > 0) {
+
+            elapsedString =
+                elapsedHours.format("%d") +
+                ":" +
+                elapsedMinutes.format("%02d") +
+                ":" +
+                elapsedSeconds.format("%02d");
+
+        } else {
+
+            elapsedString =
+                elapsedMinutes.format("%d") +
+                ":" +
+                elapsedSeconds.format("%02d");
+        }
+
+
+        // =================================
+        // FORMAT ACTIVITY VALUES
+        // =================================
+
+        var distanceString =
+            distanceMiles.format("%.2f");
+
+        var elevationString =
+            altitudeFeet.format("%d");
+
+        var ascentString =
+            ascentFeet.format("%d");
+
+        var descentString =
+            descentFeet.format("%d");
+
+
+        // =================================
+        // TOP SECTION
+        //
+        // Current time on left.
+        // Upper-right intentionally left
+        // open for Garmin HR circle.
+        // =================================
+
+        dc.drawText(
+            70,
+            3,
+            Graphics.FONT_LARGE,
+            clockString,
+            Graphics.TEXT_JUSTIFY_RIGHT
+        );
+
+        // AM / PM
+
+        dc.drawText(
+            76,
+            8,
+            Graphics.FONT_XTINY,
+            suffix,
+            Graphics.TEXT_JUSTIFY_LEFT
+        );
+
+
+        // =================================
+        // ELAPSED ACTIVITY TIME
+        // =================================
+
+        dc.drawText(
+            112,
+            69,
+            Graphics.FONT_LARGE,
+            elapsedString,
+            Graphics.TEXT_JUSTIFY_CENTER
+        );
+
+
+        // =================================
+        // FIRST HORIZONTAL DIVIDER
+        // =================================
+
+        dc.drawLine(
+            7,
+            59,
+            145,
+            59
+        );
+
+
+        // =================================
+        // DISTANCE
+        // =================================
+
+/*         dc.drawText(
+            38,
+            62,
+            Graphics.FONT_XTINY,
+            "DIST",
+            Graphics.TEXT_JUSTIFY_CENTER
+        ); */
+
+        dc.drawText(
+            38,  // x
+            69,  // y
+            Graphics.FONT_LARGE,
+            distanceString,
+            Graphics.TEXT_JUSTIFY_CENTER
+        );
+
+ /*        dc.drawText(
+            38,
+            85,
+            Graphics.FONT_XTINY,
+            "mi",
+            Graphics.TEXT_JUSTIFY_CENTER
+        ); */
+
+
+        // =================================
+        // CURRENT ELEVATION
+        // =================================
+
+/*         dc.drawText(
+            108,
+            62,
+            Graphics.FONT_XTINY,
+            "ELEV",
+            Graphics.TEXT_JUSTIFY_CENTER
+        ); */
+
+        dc.drawText(
+            //108,
+            //75,
+            70,
+            31,
+            Graphics.FONT_MEDIUM,
+            elevationString,
+            Graphics.TEXT_JUSTIFY_RIGHT
+        );
+
+        dc.drawText(
+            76,
+            34,
+            Graphics.FONT_XTINY,
+            "ft",
+            Graphics.TEXT_JUSTIFY_LEFT
+        );
+
+
+        // =================================
+        // VERTICAL DIVIDER
+        // =================================
+
+        dc.drawLine(
+            73,
+            64,
+            73,
+            103
+        );
+
+
+        // =================================
+        // SECOND HORIZONTAL DIVIDER
+        // =================================
+
+        dc.drawLine(
+            7,
+            106,
+            145,
+            106
+        );
+
+
+        // =================================
+        // ELEVATION GAIN
+        // =================================
+
+        dc.drawText(
+            60,
+            108,
+            Graphics.FONT_XTINY,
+            "UP",
+            Graphics.TEXT_JUSTIFY_RIGHT
+        );
+
+        dc.drawText(
+            137,
+            106,
+            Graphics.FONT_SMALL,
+            ascentString + " ft",
+            Graphics.TEXT_JUSTIFY_RIGHT
+        );
+
+
+        // =================================
+        // THIRD HORIZONTAL DIVIDER
+        // =================================
+
+        dc.drawLine(
+            7,
+            130,
+            145,
+            130
+        );
+
+
+        // =================================
+        // ELEVATION LOSS
+        // =================================
+
+        dc.drawText(
+            60,
+            132,
+            Graphics.FONT_XTINY,
+            "DOWN",
+            Graphics.TEXT_JUSTIFY_RIGHT
+        );
+
+        dc.drawText(
+            137,
+            130,
+            Graphics.FONT_SMALL,
+            descentString + " ft",
+            Graphics.TEXT_JUSTIFY_RIGHT
+        );
+    }
+}
