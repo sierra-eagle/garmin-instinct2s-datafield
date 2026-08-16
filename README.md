@@ -1,8 +1,8 @@
-# Garmin Instinct 2S Custom Data Field
+# Garmin Instinct 2 and 2s Custom Data Field
 
-A custom Garmin Connect IQ data field designed specifically for the **Garmin Instinct 2S**.
+A custom Garmin Connect IQ data field designed for the **Garmin Instinct 2S and 2**
 
-This project creates a compact multi-metric activity display that works alongside the Instinct 2S's circular secondary display.
+This project creates a compact multi-metric activity display that works alongside the Instinct 2s and 2 circular secondary display.
 
 ## Features
 
@@ -49,7 +49,7 @@ This project was developed using:
 * Visual Studio Code
 * Garmin Monkey C VS Code extension
 * Java JDK 17
-* Garmin Instinct 2S simulator
+* Garmin Instinct 2S and 2 simulator
 
 ## Requirements
 
