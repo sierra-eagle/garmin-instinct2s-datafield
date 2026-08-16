@@ -75,91 +75,277 @@ class cj_test1View extends WatchUi.DataField {
 
     function onUpdate(dc) {
 
-        dc.setColor(
-            Graphics.COLOR_BLACK,
-            Graphics.COLOR_WHITE
+    dc.setColor(
+        Graphics.COLOR_BLACK,
+        Graphics.COLOR_WHITE
+    );
+
+    dc.clear();
+
+
+    // =================================
+    // CURRENT CLOCK TIME
+    // =================================
+
+    var clock = System.getClockTime();
+    var hour = clock.hour;
+    var minute = clock.min;
+    //var hour = 11;  //used for testing total clock width
+    //var minute = 58; //used for testing total clock width
+    var suffix = "AM";
+
+    if (hour >= 12) {
+        suffix = "PM";
+    }
+
+    if (hour == 0) {
+        hour = 12;
+    } else if (hour > 12) {
+        hour -= 12;
+    }
+
+    var clockString =
+        hour.format("%d") +
+        ":" +
+        minute.format("%02d");
+
+
+    // =================================
+    // ELAPSED ACTIVITY TIME
+    // =================================
+
+    var totalSeconds =
+        (elapsedTime / 1000).toNumber();
+
+    var elapsedHours =
+        (totalSeconds / 3600).toNumber();
+
+    var elapsedMinutes =
+        ((totalSeconds % 3600) / 60).toNumber();
+
+    var elapsedSeconds =
+        (totalSeconds % 60).toNumber();
+
+    var elapsedString;
+
+    if (elapsedHours > 0) {
+
+        elapsedString =
+            elapsedHours.format("%d") +
+            ":" +
+            elapsedMinutes.format("%02d") +
+            ":" +
+            elapsedSeconds.format("%02d");
+
+    } else {
+
+        elapsedString =
+            elapsedMinutes.format("%d") +
+            ":" +
+            elapsedSeconds.format("%02d");
+    }
+
+
+    // =================================
+    // FORMAT ACTIVITY VALUES
+    // =================================
+
+    var distanceString =
+        distanceMiles.format("%.2f");
+
+    var elevationString =
+        altitudeFeet.format("%d");
+
+    var ascentString =
+        ascentFeet.format("%d");
+
+    var descentString =
+        descentFeet.format("%d");
+
+
+    // =================================
+    // DETECT DEVICE SCREEN SIZE
+    // =================================
+
+    var width = dc.getWidth();
+
+
+    if (width == 176) {
+
+        // =================================
+        // INSTINCT 2
+        // 176 x 176
+        // =================================
+
+
+        // =================================
+        // TOP SECTION
+        // CURRENT TIME
+        // =================================
+
+        dc.drawText(
+            70,
+            10,
+            Graphics.FONT_SMALL,
+            clockString,
+            Graphics.TEXT_JUSTIFY_RIGHT
         );
 
-        dc.clear();
+        // AM / PM
+        dc.drawText(
+            75,
+            10,
+            Graphics.FONT_XTINY,
+            suffix,
+            Graphics.TEXT_JUSTIFY_LEFT
+        );
 
 
         // =================================
-        // CURRENT CLOCK TIME
+        // CURRENT ELEVATION
         // =================================
 
-        var clock = System.getClockTime();
+        dc.drawText(
+            80,
+            35,
+            Graphics.FONT_MEDIUM,
+            elevationString,
+            Graphics.TEXT_JUSTIFY_RIGHT
+        );
 
-        var hour = clock.hour;
-        var minute = clock.min;
-        var suffix = "AM";
+        dc.drawText(
+            87,
+            38,
+            Graphics.FONT_XTINY,
+            "ft",
+            Graphics.TEXT_JUSTIFY_LEFT
+        );
 
-        if (hour >= 12) {
-            suffix = "PM";
-        }
 
-        if (hour == 0) {
-            hour = 12;
-        } else if (hour > 12) {
-            hour -= 12;
-        }
+        // =================================
+        // FIRST HORIZONTAL DIVIDER
+        // =================================
 
-        var clockString =
-            hour.format("%d") +
-            ":" +
-            minute.format("%02d");
+        dc.drawLine(
+            8,
+            66,
+            164,
+            66
+        );
+
+
+        // =================================
+        // DISTANCE
+        // =================================
+
+        dc.drawText(
+            43,
+            77,
+            Graphics.FONT_LARGE,
+            distanceString,
+            Graphics.TEXT_JUSTIFY_CENTER
+        );
 
 
         // =================================
         // ELAPSED ACTIVITY TIME
         // =================================
 
-        var totalSeconds =
-            (elapsedTime / 1000).toNumber();
-
-        var elapsedHours =
-            (totalSeconds / 3600).toNumber();
-
-        var elapsedMinutes =
-            ((totalSeconds % 3600) / 60).toNumber();
-
-        var elapsedSeconds =
-            (totalSeconds % 60).toNumber();
-
-        var elapsedString;
-
-        if (elapsedHours > 0) {
-
-            elapsedString =
-                elapsedHours.format("%d") +
-                ":" +
-                elapsedMinutes.format("%02d") +
-                ":" +
-                elapsedSeconds.format("%02d");
-
-        } else {
-
-            elapsedString =
-                elapsedMinutes.format("%d") +
-                ":" +
-                elapsedSeconds.format("%02d");
-        }
+        dc.drawText(
+            124,
+            77,
+            Graphics.FONT_LARGE,
+            elapsedString,
+            Graphics.TEXT_JUSTIFY_CENTER
+        );
 
 
         // =================================
-        // FORMAT ACTIVITY VALUES
+        // VERTICAL DIVIDER
         // =================================
 
-        var distanceString =
-            distanceMiles.format("%.2f");
+        dc.drawLine(
+            82,
+            72,
+            82,
+            116
+        );
 
-        var elevationString =
-            altitudeFeet.format("%d");
 
-        var ascentString =
-            ascentFeet.format("%d");
+        // =================================
+        // SECOND HORIZONTAL DIVIDER
+        // =================================
 
-        var descentString =
-            descentFeet.format("%d");
+        dc.drawLine(
+            8,
+            118,
+            164,
+            118
+        );
+
+
+        // =================================
+        // ELEVATION GAIN
+        // =================================
+
+        dc.drawText(
+            68,
+            121,
+            Graphics.FONT_XTINY,
+            "UP",
+            Graphics.TEXT_JUSTIFY_RIGHT
+        );
+
+        dc.drawText(
+            145,
+            119,
+            Graphics.FONT_SMALL,
+            ascentString + " ft",
+            Graphics.TEXT_JUSTIFY_RIGHT
+        );
+
+
+        // =================================
+        // THIRD HORIZONTAL DIVIDER
+        // =================================
+
+        dc.drawLine(
+            8,
+            145,
+            164,
+            145
+        );
+
+
+        // =================================
+        // ELEVATION LOSS
+        // =================================
+
+        dc.drawText(
+            73,
+            148,
+            Graphics.FONT_XTINY,
+            "DOWN",
+            Graphics.TEXT_JUSTIFY_RIGHT
+        );
+
+        dc.drawText(
+            145,
+            146,
+            Graphics.FONT_SMALL,
+            descentString + " ft",
+            Graphics.TEXT_JUSTIFY_RIGHT
+        );
+
+
+    } else {
+
+        // =================================
+        // INSTINCT 2S
+        // 156 x 156
+        //
+        // YOUR EXISTING WORKING LAYOUT
+        // =================================
 
 
         // =================================
@@ -218,46 +404,50 @@ class cj_test1View extends WatchUi.DataField {
         // DISTANCE
         // =================================
 
-/*         dc.drawText(
+        /*
+        dc.drawText(
             38,
             62,
             Graphics.FONT_XTINY,
             "DIST",
             Graphics.TEXT_JUSTIFY_CENTER
-        ); */
+        );
+        */
 
         dc.drawText(
-            38,  // x
-            69,  // y
+            38,
+            69,
             Graphics.FONT_LARGE,
             distanceString,
             Graphics.TEXT_JUSTIFY_CENTER
         );
 
- /*        dc.drawText(
+        /*
+        dc.drawText(
             38,
             85,
             Graphics.FONT_XTINY,
             "mi",
             Graphics.TEXT_JUSTIFY_CENTER
-        ); */
+        );
+        */
 
 
         // =================================
         // CURRENT ELEVATION
         // =================================
 
-/*         dc.drawText(
+        /*
+        dc.drawText(
             108,
             62,
             Graphics.FONT_XTINY,
             "ELEV",
             Graphics.TEXT_JUSTIFY_CENTER
-        ); */
+        );
+        */
 
         dc.drawText(
-            //108,
-            //75,
             70,
             31,
             Graphics.FONT_MEDIUM,
@@ -351,4 +541,5 @@ class cj_test1View extends WatchUi.DataField {
             Graphics.TEXT_JUSTIFY_RIGHT
         );
     }
+}
 }
