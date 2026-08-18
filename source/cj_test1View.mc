@@ -10,6 +10,7 @@ class cj_test1View extends WatchUi.DataField {
     var ascentFeet;
     var descentFeet;
     var altitudeFeet;
+    var heartRate;
 
     function initialize() {
         DataField.initialize();
@@ -19,6 +20,7 @@ class cj_test1View extends WatchUi.DataField {
         ascentFeet = 0;
         descentFeet = 0;
         altitudeFeet = 0;
+        heartRate = 0;
     }
 
 
@@ -69,11 +71,68 @@ class cj_test1View extends WatchUi.DataField {
                 (info.altitude * 3.28084).toNumber();
         }
 
+        // heart rate 
+        if (info.currentHeartRate != null) {
+            heartRate = info.currentHeartRate;
+        }
+
         return distanceMiles;
     }
 
+function drawClockIcon(dc, x, y) {
 
-    function onUpdate(dc) {
+    // Clock outline
+    dc.drawCircle(
+        x,
+        y,
+        8
+    );
+
+    // Hour hand
+    dc.drawLine(
+        x,
+        y,
+        x,
+        y - 5
+    );
+
+    // Minute hand
+    dc.drawLine(
+        x,
+        y,
+        x + 4,
+        y
+    );
+}
+
+
+function drawHeartIcon(dc, x, y) {
+
+    // Left half
+    dc.fillCircle(
+        x - 4,
+        y - 3,
+        5
+    );
+
+    // Right half
+    dc.fillCircle(
+        x + 4,
+        y - 3,
+        5
+    );
+
+    // Lower part of heart
+    dc.fillPolygon([
+        [x - 9, y - 2],
+        [x + 9, y - 2],
+        [x, y + 10]
+    ]);
+}
+
+
+
+   function onUpdate(dc) {
 
     dc.setColor(
         Graphics.COLOR_BLACK,
@@ -88,10 +147,14 @@ class cj_test1View extends WatchUi.DataField {
     // =================================
 
     var clock = System.getClockTime();
+
     var hour = clock.hour;
     var minute = clock.min;
-    //var hour = 11;  //used for testing total clock width
-    //var minute = 58; //used for testing total clock width
+
+    // Used for testing total clock width:
+    // var hour = 11;
+    // var minute = 58;
+
     var suffix = "AM";
 
     if (hour >= 12) {
@@ -114,18 +177,10 @@ class cj_test1View extends WatchUi.DataField {
     // ELAPSED ACTIVITY TIME
     // =================================
 
-    var totalSeconds =
-        (elapsedTime / 1000).toNumber();
-
-    var elapsedHours =
-        (totalSeconds / 3600).toNumber();
-
-    var elapsedMinutes =
-        ((totalSeconds % 3600) / 60).toNumber();
-
-    var elapsedSeconds =
-        (totalSeconds % 60).toNumber();
-
+    var totalSeconds = (elapsedTime / 1000).toNumber();
+    var elapsedHours = (totalSeconds / 3600).toNumber();
+    var elapsedMinutes = ((totalSeconds % 3600) / 60).toNumber();
+    var elapsedSeconds = (totalSeconds % 60).toNumber();
     var elapsedString;
 
     if (elapsedHours > 0) {
@@ -150,18 +205,27 @@ class cj_test1View extends WatchUi.DataField {
     // FORMAT ACTIVITY VALUES
     // =================================
 
-    var distanceString =
-        distanceMiles.format("%.2f");
+    var distanceString = distanceMiles.format("%.2f");
+    var elevationString = altitudeFeet.format("%d");
+    var ascentString = ascentFeet.format("%d");
+    var descentString = descentFeet.format("%d");
+    var heartRateString = heartRate.format("%d");
 
-    var elevationString =
-        altitudeFeet.format("%d");
+    // =================================
+    // notifications info 
+    // =================================
+  
+    var deviceSettings = System.getDeviceSettings();
+    var notificationCount = deviceSettings.notificationCount;
+    //var notificationCount = 1;  //used for testinig notification icon display
 
-    var ascentString =
-        ascentFeet.format("%d");
-
-    var descentString =
-        descentFeet.format("%d");
-
+    // =================================
+    // battery info
+    // =================================
+    
+    var systemStats = System.getSystemStats();
+    var batteryPercent = systemStats.battery.toNumber();
+    var batteryString = batteryPercent.format("%d") + "%";
 
     // =================================
     // DETECT DEVICE SCREEN SIZE
@@ -169,17 +233,255 @@ class cj_test1View extends WatchUi.DataField {
 
     var width = dc.getWidth();
 
-
-    if (width == 176) {
-
-        // =================================
-        // INSTINCT 2
-        // 176 x 176
-        // =================================
+    if (width == 218) {   //255s section
 
 
         // =================================
-        // TOP SECTION
+        // notification ICON
+        // =================================
+
+        if (notificationCount > 0) {
+
+            dc.drawText(
+                109,
+                24,
+                Graphics.FONT_XTINY,
+                notificationCount.format("%d"),
+                Graphics.TEXT_JUSTIFY_CENTER
+            );
+        }
+
+
+        // =================================
+        // HEART ICON
+        // =================================
+
+        drawHeartIcon(
+            dc,
+            160,
+            30
+        );
+
+
+        // =================================
+        // HEART RATE
+        // =================================
+
+        dc.drawText(
+            160,
+            41,
+            Graphics.FONT_MEDIUM,
+            heartRateString,
+            Graphics.TEXT_JUSTIFY_CENTER
+        );
+
+
+        // =================================
+        // CLOCK ICON
+        // =================================
+
+        drawClockIcon(
+            dc,
+            68,
+            30
+        );
+        
+        // =================================
+        // CURRENT TIME 255
+        // =================================
+
+        dc.drawText(
+            87,
+            42,
+            Graphics.FONT_MEDIUM,
+            clockString,
+            Graphics.TEXT_JUSTIFY_RIGHT
+        );
+
+        // AM / PM
+
+        dc.drawText(
+            93,
+            50,
+            Graphics.FONT_XTINY,
+            suffix,
+            Graphics.TEXT_JUSTIFY_LEFT
+        );
+
+
+        // =================================
+        // BATTERY PERCENTAGE
+        // TOP CENTER
+        // =================================
+
+        dc.drawText(
+            109,
+            2,
+            Graphics.FONT_XTINY,
+            batteryString,
+            Graphics.TEXT_JUSTIFY_CENTER
+        );
+
+        // =================================
+        // CURRENT ELEVATION 255
+        // =================================
+
+        dc.drawText(
+            129,
+            183,
+            Graphics.FONT_SMALL,
+            elevationString,
+            Graphics.TEXT_JUSTIFY_RIGHT
+        );
+
+        dc.drawText(
+            135,
+            189,
+            Graphics.FONT_XTINY,
+            "ft",
+            Graphics.TEXT_JUSTIFY_LEFT
+        );
+
+
+        // =================================
+        // FIRST HORIZONTAL DIVIDER 255
+        // =================================
+
+        dc.drawLine(
+            22,
+            73,
+            196,
+            73
+        );
+
+
+        // =================================
+        // DISTANCE 255
+        // =================================
+
+        dc.drawText(
+            55,
+            76,
+            //Graphics.FONT_LARGE,
+            Graphics.FONT_NUMBER_MILD,
+            distanceString,
+            Graphics.TEXT_JUSTIFY_CENTER
+        );
+
+
+        // =================================
+        // ELAPSED ACTIVITY TIME 255
+        // =================================
+
+        dc.drawText(
+            163,
+            76,
+            //Graphics.FONT_LARGE, 
+            Graphics.FONT_NUMBER_MILD,
+            elapsedString,
+            Graphics.TEXT_JUSTIFY_CENTER
+        );
+
+
+        // =================================
+        // VERTICAL DIVIDER LINE 255
+        // =================================
+
+        dc.drawLine(
+            109,
+            78,
+            109,
+            117
+        );
+
+
+        // =================================
+        // SECOND HORIZONTAL DIVIDER 255
+        // =================================
+
+        dc.drawLine(
+            22,
+            120,
+            196,
+            120
+        );
+
+
+        // =================================
+        // ELEVATION GAIN/UP 255
+        // =================================
+
+        dc.drawText(
+            82,
+            122,
+            Graphics.FONT_SMALL,
+            "UP",
+            Graphics.TEXT_JUSTIFY_RIGHT
+        );
+
+        dc.drawText(
+            188,
+            122,
+            Graphics.FONT_SMALL,
+            ascentString + " ft",
+            Graphics.TEXT_JUSTIFY_RIGHT
+        );
+
+
+        // =================================
+        // THIRD HORIZONTAL DIVIDER 255
+        // =================================
+
+        dc.drawLine(
+            22,
+            150,
+            196,
+            150
+        );
+
+        // =================================
+        // FOURTH HORIZONTAL DIVIDER 255
+        // =================================
+
+        dc.drawLine(
+            22,
+            180,
+            196,
+            180
+        );
+
+        // =================================
+        // ELEVATION LOSS/DOWN 255
+        // =================================
+
+        dc.drawText(
+            82,
+            153,
+            Graphics.FONT_SMALL,
+            "DOWN",
+            Graphics.TEXT_JUSTIFY_RIGHT
+        );
+
+        dc.drawText(
+            188,
+            153,
+            Graphics.FONT_SMALL,
+            descentString + " ft",
+            Graphics.TEXT_JUSTIFY_RIGHT
+        );
+
+
+    // ============================================================
+    //
+    // INSTINCT 2
+    // 176 x 176
+    //
+    // ============================================================
+
+    } else if (width == 176) { // instinct2 section
+
+
+        // =================================
         // CURRENT TIME
         // =================================
 
@@ -192,6 +494,7 @@ class cj_test1View extends WatchUi.DataField {
         );
 
         // AM / PM
+
         dc.drawText(
             75,
             10,
@@ -338,20 +641,19 @@ class cj_test1View extends WatchUi.DataField {
         );
 
 
-    } else {
+    // ============================================================
+    //
+    // INSTINCT 2S
+    // 156 x 156
+    //
+    // ============================================================
+
+    } else {  //instinct2s section
+
 
         // =================================
-        // INSTINCT 2S
-        // 156 x 156
+        // CURRENT TIME
         //
-        // YOUR EXISTING WORKING LAYOUT
-        // =================================
-
-
-        // =================================
-        // TOP SECTION
-        //
-        // Current time on left.
         // Upper-right intentionally left
         // open for Garmin HR circle.
         // =================================
@@ -404,16 +706,6 @@ class cj_test1View extends WatchUi.DataField {
         // DISTANCE
         // =================================
 
-        /*
-        dc.drawText(
-            38,
-            62,
-            Graphics.FONT_XTINY,
-            "DIST",
-            Graphics.TEXT_JUSTIFY_CENTER
-        );
-        */
-
         dc.drawText(
             38,
             69,
@@ -422,30 +714,10 @@ class cj_test1View extends WatchUi.DataField {
             Graphics.TEXT_JUSTIFY_CENTER
         );
 
-        /*
-        dc.drawText(
-            38,
-            85,
-            Graphics.FONT_XTINY,
-            "mi",
-            Graphics.TEXT_JUSTIFY_CENTER
-        );
-        */
-
 
         // =================================
         // CURRENT ELEVATION
         // =================================
-
-        /*
-        dc.drawText(
-            108,
-            62,
-            Graphics.FONT_XTINY,
-            "ELEV",
-            Graphics.TEXT_JUSTIFY_CENTER
-        );
-        */
 
         dc.drawText(
             70,
